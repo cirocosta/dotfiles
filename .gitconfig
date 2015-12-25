@@ -1,0 +1,7 @@
+[user]
+	name = Ciro S. Costa
+	email = ciro.costa@usp.br
+	signingkey = 05FD55D3
+
+[alias]
+	commit = commit -S
