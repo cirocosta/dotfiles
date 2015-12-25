@@ -18,3 +18,6 @@ setxkbmap -model abnt2 -layout br -variant abnt2
 
 # fixes Ctrl+S issue w/ some terminals
 stty -ixon
+
+export NVM_DIR="/home/ciro/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
