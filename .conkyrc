@@ -38,6 +38,7 @@ TEXT
 
 # Time
   {"full_text": " [${time %a %d %b} ${time %H:%M}] ","color": "\#2fdc57"}
+
 ],
 
   
