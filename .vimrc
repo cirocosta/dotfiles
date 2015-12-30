@@ -21,6 +21,8 @@ set undodir=~/.vim_runtime/temp_dirs/undodir
 catch
 endtry
 
+set foldcolumn=1
+set history=700
 set autoread
 set so=7
 set ruler
