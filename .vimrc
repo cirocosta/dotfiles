@@ -45,6 +45,7 @@ set tabstop=4
 set ai
 set si
 set wrap
+set completeopt-=preview
 
 vnoremap <silent> * :call VisualSelection('f', '')<CR>
 vnoremap <silent> # :call VisualSelection('b', '')<CR>
