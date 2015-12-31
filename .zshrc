@@ -13,9 +13,6 @@ antigen apply
 source $DOTFILES/.env.zsh
 source $DOTFILES/.aliases.zsh
 
-# keyboard mapping
-setxkbmap -model abnt2 -layout br -variant abnt2
-
 # fixes Ctrl+S issue w/ some terminals
 stty -ixon
 

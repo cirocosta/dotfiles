@@ -28,3 +28,6 @@
 [submodule ".vim/bundle/vim-soy"]
 	path = .vim/bundle/vim-soy
 	url = git@github.com:duganchen/vim-soy.git
+[submodule ".vim/bundle/yajs.vim"]
+	path = .vim/bundle/yajs.vim
+	url = git@github.com:othree/yajs.vim.git

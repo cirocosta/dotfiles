@@ -1,7 +1,7 @@
 execute pathogen#infect()
 
 syntax on
-set background=dark
+set background=light
 colorscheme solarized
 
 filetype plugin on
@@ -12,8 +12,9 @@ let mapleader = ","
 let g:mapleader = ","
 
 if has('mouse')
-	set mouse=a
+    set mouse=a
 endif
+
 
 try
 set undodir=~/.vim_runtime/temp_dirs/undodir
@@ -47,6 +48,7 @@ set si
 set wrap
 set completeopt-=preview
 
+vnoremap <C-C> "+yy
 vnoremap <silent> * :call VisualSelection('f', '')<CR>
 vnoremap <silent> # :call VisualSelection('b', '')<CR>
 nnoremap <esc> :noh<return><esc>
