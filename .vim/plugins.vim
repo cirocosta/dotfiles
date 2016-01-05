@@ -14,3 +14,8 @@ let g:NERDTreeWinSize=35
 map <leader>nn :NERDTreeToggle<cr>
 
 let g:multi_cursor_next_key="\<C-s>"
+
+let g:user_emmet_leader_key="<C-\>"
+let g:user_emmet_install_global = 0
+autocmd FileType html,css EmmetInstall
+
