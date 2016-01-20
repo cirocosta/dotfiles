@@ -7,7 +7,6 @@ colorscheme solarized
 filetype plugin on
 filetype indent on
 
-
 let mapleader = ","
 let g:mapleader = ","
 
@@ -22,6 +21,9 @@ set undodir=~/.vim_runtime/temp_dirs/undodir
 catch
 endtry
 
+set linebreak
+set noerrorbells
+set novisualbell
 set foldcolumn=1
 set history=700
 set autoread
@@ -47,8 +49,11 @@ set ai
 set si
 set wrap
 set completeopt-=preview
+set backspace=eol,start,indent
+set whichwrap+=<,>,h,l
 
-vnoremap <C-C> "+yy
+vmap <C-c> !tee >(pbcopy) <CR>
+
 vnoremap <silent> * :call VisualSelection('f', '')<CR>
 vnoremap <silent> # :call VisualSelection('b', '')<CR>
 nnoremap <esc> :noh<return><esc>

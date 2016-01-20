@@ -2,8 +2,7 @@
 
 dir=~/dotfiles
 olddir=~/.dotfiles_old
-files=".bashrc .zshrc .xinitrc .gitconfig .vimrc .vim \
-       .config/terminator .config/i3 .xmodmap .conkyrc"
+files=".bashrc .zshrc .gitconfig .vimrc .vim"
 
 mkdir -p $olddir
 echo "Created $olddir as a backup"
