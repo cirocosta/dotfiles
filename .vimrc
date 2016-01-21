@@ -16,11 +16,10 @@ if has('mouse')
 endif
 
 
-try
+" don't forget to 'mkdir -p' this directory
+" otherwise it won't work
 set undodir=~/.vim_runtime/temp_dirs/undodir
-    set undofile
-catch
-endtry
+set undofile
 
 set foldcolumn=1
 set history=700
@@ -44,9 +43,12 @@ set smarttab
 set shiftwidth=2
 set tabstop=2
 set ai
+set linebreak
 set si
-set wrap
 set completeopt-=preview
+set backspace=eol,start,indent
+set whichwrap+=<,>,h,l
+
 
 vnoremap <C-C> "+yy
 vnoremap <silent> * :call VisualSelection('f', '')<CR>

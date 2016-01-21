@@ -67,10 +67,10 @@ bindsym $mod+Shift+Up move up
 bindsym $mod+Shift+Right move right
 
 # split in horizontal orientation
-bindsym Mod4+h split h
+bindsym $mod+n split h
 
 # split in vertical orientation
-bindsym Mod4+v split v
+bindsym $mod+v split v
 
 # enter fullscreen mode for the focused container
 bindsym $mod+f fullscreen toggle
@@ -173,5 +173,5 @@ bar {
     status_command $HOME/bin/conky-i3bar
 	position top
 	mode hide
-	modifier Mod1
+	modifier $mod
 }

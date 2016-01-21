@@ -6,7 +6,6 @@ antigen bundle git
 antigen bundle ssh-agent
 antigen bundle zsh-users/zsh-syntax-highlighting
 antigen bundle autojump
-antigen bundle vi-mode
 antigen theme robbyrussell
 antigen apply
 
