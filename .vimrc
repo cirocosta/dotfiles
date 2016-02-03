@@ -14,12 +14,13 @@ if has('mouse')
     set mouse=a
 endif
 
+if has("gui_running")
+    set guifont=Menlo\ Regular:h14
+    set t_Co=256
+endif
 
-try
 set undodir=~/.vim_runtime/temp_dirs/undodir
-    set undofile
-catch
-endtry
+set undofile
 
 set linebreak
 set noerrorbells
@@ -43,8 +44,8 @@ set nowb
 set noswapfile
 set expandtab
 set smarttab
-set shiftwidth=4
-set tabstop=4
+set shiftwidth=2
+set tabstop=2
 set ai
 set si
 set wrap
