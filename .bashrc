@@ -8,3 +8,6 @@
 alias ls='ls --color=auto'
 PS1='[\u@\h \W]\$ '
 
+
+# added by travis gem
+[ -f /Users/cirocosta/.travis/travis.sh ] && source /Users/cirocosta/.travis/travis.sh

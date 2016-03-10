@@ -1,7 +1,7 @@
 execute pathogen#infect()
 
 syntax on
-set background=light
+set background=dark
 colorscheme solarized
 
 filetype plugin on
