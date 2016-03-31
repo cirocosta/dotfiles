@@ -24,3 +24,4 @@ alias :deval='eval "$(docker-machine env default)"'
 # git
 alias :gru='git fetch upstream && g rebase upstream/master'
 alias :gpr='git pull --rebase'
+alias :grv='git remote -v'
