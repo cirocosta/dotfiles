@@ -1,7 +1,5 @@
 export DOTFILES="$HOME/dotfiles"
 
-export N_PREFIX="$HOME/n"; [[ :$PATH: == *":$N_PREFIX/bin:"* ]] || PATH+=":$N_PREFIX/bin"  # Added by n-install (see http://git.io/n-install-repo).
-
 source /Users/cirocosta/bin/antigen.zsh
 antigen use oh-my-zsh
 antigen bundle ssh-agent
@@ -12,8 +10,8 @@ antigen apply
 
 source $DOTFILES/.aliases.zsh
 source $DOTFILES/.env.zsh
+[ -f /Users/cirocosta/.travis/travis.sh ] && \
+  source /Users/cirocosta/.travis/travis.sh
 
 ulimit -n 65536
 
-# added by travis gem
-[ -f /Users/cirocosta/.travis/travis.sh ] && source /Users/cirocosta/.travis/travis.sh

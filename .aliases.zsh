@@ -20,6 +20,9 @@ alias :kjp="ps -eo pid,command | grep \"Java\" | grep -v grep | awk '{print $1}'
 alias :dps='docker ps --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}"'
 alias :dpsa='docker ps -a --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}"'
 alias :deval='eval "$(docker-machine env default)"'
+alias :drac='docker rm -f $(docker ps -a -q)' 
+alias :dcompose='docker-compose' 
+alias :dmachine='docker-machine' 
 
 # git
 alias :gru='git fetch upstream && g rebase upstream/master'
