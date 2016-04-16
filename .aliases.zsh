@@ -21,6 +21,7 @@ alias :dps='docker ps --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names
 alias :dpsa='docker ps -a --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}"'
 alias :deval='eval "$(docker-machine env default)"'
 alias :drac='docker rm -f $(docker ps -a -q)' 
+alias :dsac='docker stop $(docker ps -aq)' 
 alias :dcompose='docker-compose' 
 alias :dmachine='docker-machine' 
 
@@ -28,3 +29,7 @@ alias :dmachine='docker-machine'
 alias :gru='git fetch upstream && g rebase upstream/master'
 alias :gpr='git pull --rebase'
 alias :grv='git remote -v'
+
+# general
+alias vi='vim'
+alias json="jq '.' -C | cat"

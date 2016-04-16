@@ -10,6 +10,7 @@ export LP_DEV_DIR="$HOME/Development/launchpad-project"
 export JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk1.8.0_66.jdk/Contents/Home"
 export GOPATH=$HOME/Development/go
 export GOROOT=/usr/local/opt/go/libexec
+export GATLING_HOME="$HOME/Development/gatling"
 
 export PATH=$JAVA_HOME/bin:$GOPATH/bin:$GOROOT/bin:$HOME/bin:$PATH
 
