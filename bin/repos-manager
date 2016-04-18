@@ -1,0 +1,349 @@
+#!/bin/bash
+
+set -euo pipefail
+
+IFS=$'\n  '
+readonly ORGANIZATION='launchpad-project'
+readonly REMOTE=upstream
+readonly REPOS=(
+  "conquerors"
+  "engine"
+  "io"
+  "io-hazelcast"
+  "scripts"
+  "loadbalancer"
+  "dashboard"
+  "landing"
+  "users"
+  "probe"
+  "email"
+  "gradle"
+  "common"
+  "api.java"
+)
+
+concurrently_clone () {
+  local shallow=$@
+  local tmp_ifs=$IFS
+  local FAIL=0
+  local pidlist;
+  local clone_args;
+
+  [[ -n $shallow ]] && clone_args="--depth 1"
+
+  pushd .
+  mkdir "${ORGANIZATION}_$(unix_timestamp)" && cd $_
+
+  for repo in ${REPOS[@]}; do
+    git clone $clone_args git@github.com:${ORGANIZATION}/${repo}.git & pidlist="$pidlist $!"
+  done
+
+  IFS=$' '
+  for pid in $pidlist; do
+    wait $pid || let "FAIL += 1"
+  done
+
+  if [[ $FAIL -ne 0 ]]; then
+    echo "Failed: ${FAIL}" 
+    exit 1
+  fi
+
+  IFS=$tmp_ifs
+
+  popd
+}
+
+concurrently_fetch_repos () {
+  local tmp_ifs=$IFS
+  local FAIL=0
+  local pidlist;
+
+  for repo in ${REPOS[@]}; do
+    fetch_repo $repo & pidlist="$pidlist $!"
+  done
+
+  IFS=$' '
+  for pid in $pidlist; do
+    wait $pid || let "FAIL += 1"
+  done
+
+  if [[ $FAIL -ne 0 ]]; then
+    echo "Failed: ${FAIL}" 
+    exit 1
+  fi
+
+  IFS=$tmp_ifs
+}
+
+check_any_dirty () {
+  for repo in ${REPOS[@]}; do
+    [[ -d $repo ]] || (print::single_bold "$repo" "is missing."; exit 1)
+
+    pushd .
+    cd $repo
+
+    if git::is_dirty $repo; then 
+      print::single_bold "$repo" "is dirty." 
+      exit 1
+    fi
+
+    popd
+  done
+}
+ 
+
+fetch_repo () {
+  local latest=master
+  local repo=$1
+
+  cd $repo
+  git::add_upstream $repo
+  git fetch -q $REMOTE
+}
+
+git::add_upstream () {
+  local repo=$1
+
+  if ! (git remote | grep $REMOTE > /dev/null); then
+    git remote add $REMOTE git@github.com:${ORGANIZATION}/${repo}.git
+  fi
+}
+
+git::pretty_version () {
+  local repo=$1
+
+  local branch=`git symbolic-ref --short -q HEAD`
+  local sha=`git rev-parse HEAD`
+  local tag=$(git tag --points-at $sha)
+  local ver=$([[ $tag ]] && echo "$tag" || echo "${branch}#${sha}")
+
+  echo ${ver::20}
+}
+
+git::is_dirty() {
+  if [[ -n $(git status --porcelain) ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+
+show_version () {
+  local repo=$1
+
+  if ! [[ -d $repo ]]; then
+    print::row $repo "missing" " "
+    return
+  fi
+
+  pushd .
+  cd $repo
+
+  local ver=$(git::pretty_version $repo)
+
+  if git::is_dirty; then
+    print::row::bold $repo $ver x
+  else
+    print::row $repo $ver " "
+  fi
+
+  popd
+}
+
+show_versions_serially () {
+  echo 
+  print::row::bold REPOSITORY VERSION DIRTY
+  print::row::bold ---------- ------- -----
+
+  for repo in ${REPOS[@]}; do
+    show_version $repo
+  done
+
+  echo
+}
+
+checkout_all () {
+  local tag=$1
+
+  print::row::bold REPOSITORY FROM TO
+  print::row::bold ---------- ---- --
+
+  if [[ $tag = "master" ]]; then 
+    for repo in ${REPOS[@]}; do checkout_to_master $repo; done
+  else
+    for repo in ${REPOS[@]}; do checkout_to_tag $repo $tag; done
+  fi
+}
+
+checkout_to_master () {
+  local repo=$1
+
+  pushd .
+  cd $repo
+  local last_ver=$(git::pretty_version $repo)
+
+  git checkout -q master
+
+  local current_ver=$(git::pretty_version $repo)
+  print::row $repo $last_ver $current_ver
+
+  popd
+}
+
+# `checkout`s to a given tag. 
+#
+#   If the tag is not found, tries to fetch new tags
+#   and then tries again. If it doesn't find, stays
+#   in the same revision
+checkout_to_tag () {
+  local repo=$1
+  local tag=$2
+
+  pushd .
+  cd $repo
+  local last_ver=$(git::pretty_version $repo)
+
+  if ! git rev-parse $tag >/dev/null 2>&1; then
+    git fetch -q --tags 
+  fi
+
+  if ! git rev-parse $tag >/dev/null 2>&1; then
+    print::row::bold $repo $last_ver $last_ver
+  else
+    git checkout $tag
+    print::row::bold $repo $last_ver $tag
+  fi
+
+  popd
+}
+
+check_args () {
+  if [[ $# -lt 1 ]]; then
+    show_help
+    exit 1
+  fi
+
+  case $1 in
+    show)       show_versions_serially
+                exit 0
+                ;;
+
+
+    clone)      shift
+                concurrently_clone $@;
+                exit 0
+                ;;
+
+
+    checkout)   if [[ -z $2 ]]; then
+                  echo "Error: A <tag> must be specified." 
+                  exit 1
+                fi
+                check_any_dirty 
+                checkout_all $2
+                ;;
+
+
+    fetch)      check_any_dirty 
+                concurrently_fetch_repos
+                ;;
+
+
+    *)          show_help
+                exit 1
+                ;;
+  esac
+}
+
+show_help () {
+  cat <<-EOF
+
+    Usage:
+
+      $ ./repos-manager.sh <organization> [cmd] [args]
+
+
+    Commands:
+      show              shows repositories and their respective vers, 
+                        i.e, their HEADS.
+
+      fetch             fetches latest revisions of each repository
+
+      checkout <tag>    performs a 'git-checkout' to a given tag.
+
+      clone [--shallow] clones all repositories to {ORGANIZATION}_TIMESTAMP. 
+                        If "--shallow", then performs a shallow clone 
+                        (depth: 1).
+
+
+    Example:
+      Assuming repo{A,B,C,D} are not dirty (no uncommited changes, for instance),
+      and that:
+
+        repoA is on #master,  has tags [v1.0.0-alpha3.1, v1.0.0-alpha3]
+        repoB is on #tests2,  has tags [v1.0.0-alpha3.1, v1.0.0-alpha3.1.1]
+        repoC is on #1h23j1,  has tags [v1.0.0-alpha3]
+        repoD is on v1.0.0-alpha3,  has tags [v1.0.0-alpha3]
+
+      then:
+
+        $ ./repos-manager.sh checkout v1.0.0-alpha.3
+
+          > repoA:    master        -> v1.0.0-alpha3
+          > repoB:    tests2        -> v1.0.0-alpha3
+          > repoC:    master        -> v1.0.0-alpha3
+          > repoD:    v1.0.0-alpha3 -> v1.0.0-alpha3
+
+EOF
+}
+
+pushd () {
+  command pushd "$@" > /dev/null
+}
+
+popd () {
+  command popd "$@" > /dev/null
+}
+
+print::single_bold () {
+  printf "\e[1m%s\e[0m " $1
+  shift
+  printf "$@\n"
+}
+
+print::row::bold () {
+  printf "\e[1m%20s : %22s : %8s\e[0m\n" $1 $2 $3
+}
+
+print::row () {
+  printf "%20s : %22s : %8s\n" $1 $2 $3
+}
+
+unix_timestamp () {
+  echo "$(date +%s)"
+}
+
+random_string () {
+  local length=$1
+  local string;
+  readonly alphabet='abcdefghijklmnopqrstuvwxyz'
+  
+  echo $length
+  
+  for i in `seq 1 $length`; do
+    string="${string}$(_choose alphabet)"
+  done
+
+  echo $string
+}
+
+_choose () {
+  echo ${1:RANDOM%${#1}:1}
+}
+
+main () {
+  check_args "$@"
+}
+
+main "$@"
