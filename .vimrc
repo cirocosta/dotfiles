@@ -1,7 +1,7 @@
 execute pathogen#infect()
 
 syntax on
-set background=dark
+set background=light
 colorscheme solarized
 
 filetype plugin on
@@ -14,18 +14,12 @@ if has('mouse')
     set mouse=a
 endif
 
-if has("gui_running")
-    set guifont=Menlo\ Regular:h14
-    set t_Co=256
-endif
-
 set undodir=~/.vim_runtime/temp_dirs/undodir
 set undofile
 
 set linebreak
 set noerrorbells
 set novisualbell
-set foldcolumn=1
 set history=700
 set autoread
 set so=7

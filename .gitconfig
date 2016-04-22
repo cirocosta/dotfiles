@@ -1,20 +1,12 @@
 [user]
 	name = Ciro S. Costa
 	email = ciro.costa@liferay.com
-	signingkey = 05FD55D3
+	signingkey = F55C8E4A
 
 [alias]
 	commit = commit -S
 [core]
 	excludesfile = /Users/cirocosta/.gitignore_global
 	autocrlf = input
-[difftool "sourcetree"]
-	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
-	path = 
-[mergetool "sourcetree"]
-	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
-	trustExitCode = true
-[filter "lfs"]
-	clean = git-lfs clean %f
-	smudge = git-lfs smudge %f
-	required = true
+[commit]
+	gpgsign = true

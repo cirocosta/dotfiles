@@ -14,3 +14,4 @@ export GATLING_HOME="$HOME/Development/gatling"
 
 export PATH=$JAVA_HOME/bin:$GOPATH/bin:$GOROOT/bin:$HOME/bin:$PATH
 
+export LP_DEVELOPMENT_MODE=network
