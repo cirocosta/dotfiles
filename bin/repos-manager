@@ -2,25 +2,26 @@
 
 set -euo pipefail
 
-IFS=$'\n  '
-readonly ORGANIZATION='launchpad-project'
-readonly REMOTE=upstream
-readonly REPOS=(
-  "conquerors"
-  "engine"
-  "io"
-  "io-hazelcast"
-  "scripts"
-  "loadbalancer"
-  "dashboard"
-  "landing"
-  "users"
-  "probe"
-  "email"
-  "gradle"
-  "common"
-  "api.java"
-)
+readonly CONFIG_FROM_HOME="${HOME}/.repos-managerrc"
+readonly CONFIG_FROM_PWD="${PWD}/.repos-managerrc"
+
+get_configuration () {
+  local cfg; 
+
+  if [[ -f $CONFIG_FROM_PWD ]]; then
+    cfg=$CONFIG_FROM_PWD
+  else
+    if [[ -f $CONFIG_FROM_HOME ]]; then
+      cfg=$CONFIG_FROM_HOME
+    else
+      show_config_help
+      exit 1
+    fi
+  fi
+
+  echo $cfg
+}
+
 
 concurrently_clone () {
   local shallow=$@
@@ -53,6 +54,28 @@ concurrently_clone () {
   popd
 }
 
+concurrently_sync_repos () {
+  local tmp_ifs=$IFS
+  local FAIL=0
+  local pidlist;
+
+  for repo in ${REPOS[@]}; do
+    sync_repo $repo & pidlist="$pidlist $!"
+  done
+
+  IFS=$' '
+  for pid in $pidlist; do
+    wait $pid || let "FAIL += 1"
+  done
+
+  if [[ $FAIL -ne 0 ]]; then
+    echo "Failed: ${FAIL}" 
+    exit 1
+  fi
+
+  IFS=$tmp_ifs
+}
+
 concurrently_fetch_repos () {
   local tmp_ifs=$IFS
   local FAIL=0
@@ -75,6 +98,28 @@ concurrently_fetch_repos () {
   IFS=$tmp_ifs
 }
 
+sync_repo () {
+  local latest=master
+  local repo=$1
+
+  cd $repo
+  git checkout -q master
+  git::add_upstream $repo
+  git fetch -q $REMOTE 
+  git rebase -q upstream/master
+
+  printf "%20s synced\n" $repo
+}
+
+fetch_repo () {
+  local latest=master
+  local repo=$1
+
+  cd $repo
+  git::add_upstream $repo
+  git fetch -q $REMOTE
+}
+
 check_any_dirty () {
   for repo in ${REPOS[@]}; do
     [[ -d $repo ]] || (print::single_bold "$repo" "is missing."; exit 1)
@@ -91,15 +136,6 @@ check_any_dirty () {
   done
 }
  
-
-fetch_repo () {
-  local latest=master
-  local repo=$1
-
-  cd $repo
-  git::add_upstream $repo
-  git fetch -q $REMOTE
-}
 
 git::add_upstream () {
   local repo=$1
@@ -229,12 +265,15 @@ check_args () {
                 exit 0
                 ;;
 
+   sync-all)    check_any_dirty 
+                concurrently_sync_repos $@;
+                exit 0
+                ;;
 
     clone)      shift
                 concurrently_clone $@;
                 exit 0
                 ;;
-
 
     checkout)   if [[ -z $2 ]]; then
                   echo "Error: A <tag> must be specified." 
@@ -270,6 +309,9 @@ show_help () {
 
       fetch             fetches latest revisions of each repository
 
+      sync-all          for every repository, goes to master, fetches fromm
+                        upstream and  then performs a rebase.
+
       checkout <tag>    performs a 'git-checkout' to a given tag.
 
       clone [--shallow] clones all repositories to {ORGANIZATION}_TIMESTAMP. 
@@ -296,6 +338,37 @@ show_help () {
           > repoD:    v1.0.0-alpha3 -> v1.0.0-alpha3
 
 EOF
+}
+
+show_config_help () {
+if ! [[ ( -d $CONFIG_FROM_PWD ) || ( -d $CONFIG_FROM_HOME ) ]]; then
+  cat <<-EOF
+  Error:
+    "repos-manager" requires a '.repos-manager' file in the current 
+    directory or at 'HOME'. The configuration file must define the 
+    following variables:
+
+      - ORGANIZATION    name of the organization that holds the repos
+
+      - REMOTE          name of the remote to fetch the repositories
+                        (so that you can keep your 'origin' to the
+                        fork
+
+      - REPOS           array of repositories to perform actions on
+
+
+  Example:
+    configuration file '{HOME}/Development/myorg/.repos-managerrc':
+    
+      '''
+      #!/bin/bash
+
+      readonly ORGANIZATION='myorg'
+      readonly REMOTE='upstream'
+      readonly REPOS=("repo1" "repo2" "repo3")
+      '''
+EOF
+fi
 }
 
 pushd () {
@@ -343,6 +416,7 @@ _choose () {
 }
 
 main () {
+  source $(get_configuration)
   check_args "$@"
 }
 

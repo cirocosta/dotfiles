@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e
+
+old=$1
+new=$1
+
+echo "replacing '$old' for '$new'"
+
+ag $old -l --nocolor -print0 | xargs sed -i "" "s/$old/$new/g"
+

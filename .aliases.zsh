@@ -31,6 +31,7 @@ alias :gru='git fetch upstream && g rebase upstream/master'
 alias :gpr='git pull --rebase'
 alias :grv='git remote -v'
 alias :gcm='git checkout master'
+alias gs='gst'
 
 # general
 alias vi='vim'
