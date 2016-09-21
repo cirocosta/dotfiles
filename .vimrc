@@ -2,6 +2,7 @@ execute pathogen#infect()
 
 syntax on
 set background=light
+set clipboard=unnamed
 colorscheme solarized
 
 filetype plugin on
@@ -12,6 +13,13 @@ let g:mapleader = ","
 
 if has('mouse')
     set mouse=a
+endif
+
+if has("gui_running")
+  set background=dark
+  set guifont=Inconsolata:h16
+  set guioptions-=r
+  set guioptions-=L
 endif
 
 set undodir=~/.vim_runtime/temp_dirs/undodir
@@ -47,8 +55,6 @@ set completeopt-=preview
 set backspace=eol,start,indent
 set whichwrap+=<,>,h,l
 
-vmap <C-c> !tee >(pbcopy) <CR>
-
 vnoremap <silent> * :call VisualSelection('f', '')<CR>
 vnoremap <silent> # :call VisualSelection('b', '')<CR>
 nnoremap <esc> :noh<return><esc>
@@ -67,3 +73,24 @@ map <leader>ba :1,1000 bd!<cr>
 
 source ~/.vim/plugins.vim
 source ~/.vim/helpers.vim
+
+
+" mapping to make movements operate on 1 screen line in wrap mode
+function! ScreenMovement(movement)
+   if &wrap
+      return "g" . a:movement
+   else
+      return a:movement
+   endif
+endfunction
+onoremap <silent> <expr> j ScreenMovement("j")
+onoremap <silent> <expr> k ScreenMovement("k")
+onoremap <silent> <expr> 0 ScreenMovement("0")
+onoremap <silent> <expr> ^ ScreenMovement("^")
+onoremap <silent> <expr> $ ScreenMovement("$")
+nnoremap <silent> <expr> j ScreenMovement("j")
+nnoremap <silent> <expr> k ScreenMovement("k")
+nnoremap <silent> <expr> 0 ScreenMovement("0")
+nnoremap <silent> <expr> ^ ScreenMovement("^")
+nnoremap <silent> <expr> $ ScreenMovement("$")
+

@@ -2,12 +2,11 @@
 # ~/.bashrc
 #
 
-# If not running interactively, don't do anything
-[[ $- != *i* ]] && return
-
-alias ls='ls --color=auto'
-PS1='[\u@\h \W]\$ '
-
+PS1='[\u \w]\$ '
 
 # added by travis gem
 [ -f /Users/cirocosta/.travis/travis.sh ] && source /Users/cirocosta/.travis/travis.sh
+
+# Adding autocomplete for 'we' 
+[ -f ~/.we_autocomplete ] && source ~/.we_autocomplete
+

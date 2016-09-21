@@ -11,6 +11,7 @@ antigen apply
 source $DOTFILES/.aliases.zsh
 source $DOTFILES/.env.zsh
 
+DYLD_FORCE_FLAT_NAMESPACE=1
 
 [ -f /Users/cirocosta/.travis/travis.sh ] && \
   source /Users/cirocosta/.travis/travis.sh
@@ -23,4 +24,8 @@ else
 fi
 
 ulimit -n 65536
+
+
+# Adding autocomplete for 'we' 
+[ -f ~/.we_autocomplete ] && source ~/.we_autocomplete
 
